@@ -91,6 +91,4 @@ async def vouch(
         pass
 
 # ================= RUN BOT =================
-bot.run(TOKEN)
-
-
+bot.run(os.getenv("TOKEN"))
