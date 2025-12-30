@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from discord import app_commands
 import os
 # ================= SAFE TOKEN =================
 # Token will come from hosting (Render), NOT from code
@@ -91,4 +92,5 @@ async def vouch(
 
 # ================= RUN BOT =================
 bot.run(TOKEN)
+
 
