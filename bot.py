@@ -1,32 +1,39 @@
-import os
 import discord
-from discord import app_commands
 from discord.ext import commands
+from discord import app_commands
 from datetime import datetime
 
-# ========= TOKEN FROM ENV =========
-TOKEN = os.getenv("TOKEN")
-if not TOKEN:
-    raise RuntimeError("TOKEN not found in environment variables")
+# ================== BOT TOKEN ==================
+# 🔴 PASTE YOUR BOT TOKEN BELOW (ONLY ON REPLIT / LOCAL)
+TOKEN = "MTQ1NDg4MzIyODc2MTcxODc5Ng.GUw_Ga.5QKPHPw_YNSRmxvcbgvWcGlwhNoV9asORcLrZM"
+# =================================================
 
-# ========= INTENTS =========
+# --------- INTENTS ---------
 intents = discord.Intents.default()
 intents.members = True
 
-bot = commands.Bot(command_prefix="!", intents=intents)
+# --------- BOT SETUP ---------
+class MyBot(commands.Bot):
+    def __init__(self):
+        super().__init__(command_prefix="!", intents=intents)
 
-# ========= READY =========
+    async def setup_hook(self):
+        await self.tree.sync()  # Sync slash commands globally
+        print("✅ Slash commands synced")
+
+bot = MyBot()
+
+# --------- READY EVENT ---------
 @bot.event
 async def on_ready():
-    await bot.tree.sync()
-    print(f"✅ Logged in as {bot.user}")
+    print(f"🤖 Logged in as {bot.user} (ID: {bot.user.id})")
 
-# ========= /vouch COMMAND =========
+# --------- /vouch COMMAND ---------
 @bot.tree.command(name="vouch", description="Send a vouch with star rating")
 @app_commands.describe(
     user="Who are you vouching for",
     stars="Star rating",
-    review="Your review message"
+    review="Write your review"
 )
 @app_commands.choices(stars=[
     app_commands.Choice(name="⭐ 1 Star", value=1),
@@ -43,32 +50,47 @@ async def vouch(
 ):
     await interaction.response.defer(thinking=True)
 
-    stars_display = "⭐" * stars.value
+    star_display = "⭐" * stars.value
     date = datetime.now().strftime("%d %b %Y")
 
     embed = discord.Embed(
-        title="🎉 New Vouch Received!",
+        title="🌟 New Vouch!",
         description=f"{interaction.user.mention} vouched for {user.mention}",
         color=discord.Color.gold()
     )
-    embed.add_field(name="⭐ Rating", value=f"{stars_display} ({stars.value}/5)", inline=False)
-    embed.add_field(name="📝 Review", value=review, inline=False)
-    embed.add_field(name="📅 Date", value=date, inline=False)
+
+    embed.add_field(
+        name="Rating",
+        value=f"{star_display} ({stars.value}/5)",
+        inline=False
+    )
+
+    embed.add_field(
+        name="Review",
+        value=review,
+        inline=False
+    )
+
+    embed.set_footer(text=f"Date: {date}")
 
     msg = await interaction.followup.send(embed=embed)
-    await msg.add_reaction("👍")
+
+    # Reactions
     await msg.add_reaction("❤️")
     await msg.add_reaction("⭐")
+    await msg.add_reaction("👍")
 
+    # DM sender
     try:
         await interaction.user.send(embed=embed)
     except:
         pass
 
+    # DM receiver
     try:
         await user.send(embed=embed)
     except:
         pass
 
-# ========= RUN =========
+# --------- RUN BOT ---------
 bot.run(TOKEN)
