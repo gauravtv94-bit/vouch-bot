@@ -1,9 +1,6 @@
 import discord
-from discord import app_commands
 from discord.ext import commands
-from datetime import datetime
 import os
-
 # ================= SAFE TOKEN =================
 # Token will come from hosting (Render), NOT from code
 TOKEN = os.getenv("TOKEN")
@@ -94,3 +91,4 @@ async def vouch(
 
 # ================= RUN BOT =================
 bot.run(TOKEN)
+
